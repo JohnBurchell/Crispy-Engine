@@ -3,7 +3,7 @@
 
 class Component
 {
-
+public:
 };
 
 #endif //COMPONENT_H_
