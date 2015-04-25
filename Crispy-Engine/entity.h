@@ -1,9 +1,9 @@
 #ifndef ENTITY_H_
 #define ENTITY_H_
 
-class Entity
+struct Entity
 {
-
+	int m_id;
 };
 
 #endif //ENTITY_H
