@@ -4,6 +4,8 @@
 //GLFW
 #include <GLFW/glfw3.h>
 
+#include "Graphics\window.h"
+
 #include <iostream>
 
 GLuint shaderProgram;
@@ -352,48 +354,15 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
 
 int main()
 {
-	glfwInit();
-	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
-	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-	glfwWindowHint(GLFW_RESIZABLE, GL_FALSE);
+	Window window;
 
-	GLFWwindow* window = glfwCreateWindow(800, 600, "Learning some OpenGL", nullptr, nullptr);
-	glfwMakeContextCurrent(window);
-
-	glfwSetKeyCallback(window, key_callback);
-
-	//Check to make sure the window is not null. If it is, terminate.
-	if (window == nullptr)
-	{
-		std::cout << "Failed to create GLFW window" << std::endl;
-		glfwTerminate();
-		return -1;
-	}
-
-	//Initialise GLEW
-	//glewExperimental allows us to use modern techniques. Not setting it to true might lead to complications
-	glewExperimental = GL_TRUE;
-	if (glewInit() != GLEW_OK)
-	{
-		std::cout << "Failed to initialise GLEW" << std::endl;
-		return -1;
-	}
-
-	//Tell OpenGL the size of the window, or in this case the viewport, that we wish to render to
-	glViewport(0, 0, 800, 600);
-
-	//Init shaders and setup the VBO/VBA data
-	//tut_one();
-
-	//exercise one
-	//exercise_one();
+	glfwSetKeyCallback(window.window, key_callback);
 
 	//Tutorial Two
 	tut_two_shaders();
 
 	//Simple loop
-	while (!glfwWindowShouldClose(window))
+	while (!window.window_is_open())
 	{
 		glfwPollEvents();
 
@@ -424,10 +393,9 @@ int main()
 		glDrawArrays(GL_TRIANGLES, 0, 3);
 		glBindVertexArray(0);
 
-		glfwSwapBuffers(window);
+		glfwSwapBuffers(window.window);
 	}
 
 	//Cleanup
-	glfwTerminate();
 	return 0;
 }
