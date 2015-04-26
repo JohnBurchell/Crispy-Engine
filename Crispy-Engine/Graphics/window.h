@@ -6,11 +6,13 @@
 #include <GL/glew.h>
 //GLFW
 #include <GLFW/glfw3.h>
+#include <string>
 
 class Window
 {
 public:
 	Window();
+	Window(int width, int height, const char* title);
 	~Window();
 
 	//glfwWindowShouldClose returns an integer, hence the equality check to avoid implicit conversion.
