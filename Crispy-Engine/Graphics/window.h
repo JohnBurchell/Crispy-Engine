@@ -13,7 +13,8 @@ public:
 	Window();
 	~Window();
 
-	inline bool window_is_open() const { return glfwWindowShouldClose(window); };
+	//glfwWindowShouldClose returns an integer, hence the equality check to avoid implicit conversion.
+	inline bool window_is_open() const { return glfwWindowShouldClose(window) == 1; };
 
 	GLFWwindow* window;
 

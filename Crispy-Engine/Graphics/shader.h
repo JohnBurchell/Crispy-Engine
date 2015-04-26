@@ -2,6 +2,7 @@
 #define SHADER_H_
 
 #include <GL/glew.h> // Include all the OpenGL headers
+#include <GLFW/glfw3.h> // Include the glew headers
 
 #pragma once
 class Shader

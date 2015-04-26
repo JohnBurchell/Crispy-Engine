@@ -1,8 +1,6 @@
 //GLEW
 #define GLEW_STATIC
 #include <GL/glew.h>
-//GLFW
-#include <GLFW/glfw3.h>
 
 #include "Graphics\window.h"
 
@@ -37,13 +35,6 @@ const GLchar* fragmentShaderSource = "#version 330 core\n"
 	"void main()\n"
 	"{\n"
 	"colour = vec4(our_colour, 1.0f);\n"
-	"}\n\0";
-
-const GLchar* yellow_shader = "#version 330 core\n"
-	"out vec4 color;\n"
-	"void main()\n"
-	"{\n"
-	"color = vec4(1.0f, 1.0f, 0.0f, 1.0f);\n"
 	"}\n\0";
 
 void tut_two_shaders()
@@ -157,13 +148,9 @@ void exercise_one()
 
 	//Compile Fragment Shader
 	fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
-	frag_shader_yellow = glCreateShader(GL_FRAGMENT_SHADER);
 
 	glShaderSource(fragmentShader, 1, &fragmentShaderSource, nullptr);
 	glCompileShader(fragmentShader);
-
-	glShaderSource(frag_shader_yellow, 1, &yellow_shader, nullptr);
-	glCompileShader(frag_shader_yellow);
 
 	//Check for errors during compilation.
 	glGetShaderiv(fragmentShader, GL_COMPILE_STATUS, &success);
@@ -183,13 +170,9 @@ void exercise_one()
 	glAttachShader(shaderProgram, fragmentShader);
 	glLinkProgram(shaderProgram);
 
-	glAttachShader(shaderProgram_yellow, vertexShader);
-	glAttachShader(shaderProgram_yellow, frag_shader_yellow);
-	glLinkProgram(shaderProgram_yellow);
 
 	//Check that linking worked correctly
 	glGetProgramiv(shaderProgram, GL_LINK_STATUS, &success);
-	glGetProgramiv(shaderProgram_yellow, GL_LINK_STATUS, &success);
 
 	if (!success)
 	{
@@ -199,7 +182,6 @@ void exercise_one()
 	//Delete the shaders as they are no longer needed anymore. Frees up memory perhaps?
 	glDeleteShader(vertexShader);
 	glDeleteShader(fragmentShader);
-	glDeleteShader(frag_shader_yellow);
 
 	/*
 	Start of binding process
@@ -370,15 +352,9 @@ int main()
 		glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT);
 
-		//Set the uniform shader variable here.
-		GLfloat time_value = glfwGetTime();
-		GLfloat green_value = (sin(time_value) / 2) + 0.5;
-		//This line should give the index of the uniform in the VAO
 		GLint vertex_colour_location = glGetUniformLocation(shaderProgram, "our_colour");
 
-		//Use the shader and update the green value.
 		glUseProgram(shaderProgram);
-		glUniform4f(vertex_colour_location, 0.0f, green_value, 0.0f, 1.0f);
 
 		//Drawning
 		glBindVertexArray(VAOs[0]);

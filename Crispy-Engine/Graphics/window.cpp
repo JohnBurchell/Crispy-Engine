@@ -1,5 +1,8 @@
 #include "window.h"
 
+#define GLEW_STATIC
+#include <GL/glew.h>
+
 Window::Window()
 {
 	//Initialise glfw
