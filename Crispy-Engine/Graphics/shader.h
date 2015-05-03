@@ -1,10 +1,11 @@
 #ifndef SHADER_H_
 #define SHADER_H_
+#pragma once
 
+#define GLEW_STATIC
 #include <GL/glew.h> // Include all the OpenGL headers
 #include <GLFW/glfw3.h> // Include the glew headers
 
-#pragma once
 class Shader
 {
 public:

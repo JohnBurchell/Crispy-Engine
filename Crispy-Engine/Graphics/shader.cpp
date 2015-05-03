@@ -1,6 +1,5 @@
 #include "shader.h"
 
-#include <GL/glew.h> // Include all the OpenGL headers
 #include <fstream>
 #include <sstream>
 #include <iostream>
