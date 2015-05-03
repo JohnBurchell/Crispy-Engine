@@ -40,6 +40,17 @@ Window::Window()
 	glViewport(0, 0, 800, 600);
 }
 
+void Window::clear()
+{
+	glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
+	glClear(GL_COLOR_BUFFER_BIT);
+}
+
+void Window::flip()
+{
+	glfwSwapBuffers(window);
+}
+
 Window::Window(int width, int height, const char* title)
 {
 	//Initialise glfw

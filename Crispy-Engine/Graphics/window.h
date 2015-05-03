@@ -15,6 +15,9 @@ public:
 	Window(int width, int height, const char* title);
 	~Window();
 
+	void flip();
+	void clear();
+
 	//glfwWindowShouldClose returns an integer, hence the equality check to avoid implicit conversion.
 	inline bool window_is_open() const { return glfwWindowShouldClose(window) == 1; };
 
