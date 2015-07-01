@@ -113,17 +113,17 @@ int main()
 	GLfloat vertices[] =
 	{
 		//Positions - x,y,z  - Colours r,g,b
-		0.0f, 0.5f, 0.0f, 1.0f, 0.0f, 0.0f, //Top
-		0.5f, -0.5f, 0.0f, 0.0f, 1.0f, 0.0f, //Bottom Right
+		 0.0f,  0.5f, 0.0f, 1.0f, 0.0f, 0.0f, //Top
+		 0.5f, -0.5f, 0.0f, 0.0f, 1.0f, 0.0f, //Bottom Right
 		-0.5f, -0.5f, 0.0f, 0.0f, 0.0f, 1.0f  //Bottom Left
 	};
 
-	GLuint VAOs[2];
+	GLuint VAOs[1];
 	GLuint EBO;
 
-	Vertex_Buffer VBO(vertices, 4 * 3, 3);
+	Vertex_Buffer VBO(vertices, sizeof(vertices), 3);
 
-	glGenVertexArrays(2, VAOs);
+	glGenVertexArrays(1, VAOs);
 	glBindVertexArray(VAOs[0]);
 
 	glBindBuffer(GL_ARRAY_BUFFER, VBO.get_index());
@@ -155,10 +155,7 @@ int main()
 		//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 		glBindVertexArray(0);
 
-		glUseProgram(shaderProgram_yellow);
-		glBindVertexArray(VAOs[1]);
-		glDrawArrays(GL_TRIANGLES, 0, 3);
-		glBindVertexArray(0);
+
 
 		window.flip();
 	}

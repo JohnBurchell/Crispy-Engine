@@ -18,6 +18,8 @@ public:
 	Vertex_Buffer_Array();
 	~Vertex_Buffer_Array();
 
+	//TODO - Decide if we want to allow copying / moving
+
 	void add_buffer(Buffer vertex_buffer, GLuint index, GLuint stride = 0, GLuint step = 0);
 
 	inline void bind() const { glBindVertexArray(m_index); };

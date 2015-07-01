@@ -51,7 +51,7 @@ void Window::flip()
 	glfwSwapBuffers(window);
 }
 
-Window::Window(int width, int height, const char* title)
+Window::Window(int width, int height, const std::string& title)
 {
 	//Initialise glfw
 	glfwInit();
@@ -61,7 +61,7 @@ Window::Window(int width, int height, const char* title)
 	glfwWindowHint(GLFW_RESIZABLE, GL_FALSE);
 
 	//Set window size, title
-	window = glfwCreateWindow(width, height, title, nullptr, nullptr);
+	window = glfwCreateWindow(width, height, title.c_str(), nullptr, nullptr);
 	glfwMakeContextCurrent(window);
 
 	//Check to make sure the window is not null. If it is, terminate.
