@@ -7,10 +7,10 @@
 #include <memory>
 #include <vector>
 
-#include "vertexbuffer.h"
+class Vertex_Buffer_Object;
 
-using Buffer = std::shared_ptr <Vertex_Buffer>;
-using Buffer_Vector = std::vector <Buffer>;
+using Buffer = Vertex_Buffer_Object;
+using Buffer_Vector = std::vector <Buffer*>;
 
 class Vertex_Buffer_Array
 {
@@ -18,16 +18,16 @@ public:
 	Vertex_Buffer_Array();
 	~Vertex_Buffer_Array();
 
-	//TODO - Decide if we want to allow copying / moving
+	void add_buffer(Vertex_Buffer_Object* vertex_buffer, GLuint index, GLuint stride = 0, GLuint step = 0);
 
-	void add_buffer(Buffer vertex_buffer, GLuint index, GLuint stride = 0, GLuint step = 0);
-
-	inline void bind() const { glBindVertexArray(m_index); };
+	inline void bind() const { glBindVertexArray(m_ID); };
 	inline void unbind() const { glBindVertexArray(0); };
+
+	inline GLuint get_int() const { return m_ID; };
 
 private:
 
-	GLuint m_index;
+	GLuint m_ID;
 	Buffer_Vector m_buffers;
 };
 
