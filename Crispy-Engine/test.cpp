@@ -2,94 +2,23 @@
 #define GLEW_STATIC
 #include <GL/glew.h>
 
-#include "Graphics\window.h"
-#include "Graphics\Core\vertexbuffer.h"
-#include "Graphics\Core\vertexbufferarray.h"
+#include <glm\glm.hpp>
+#include <glm\gtc\matrix_transform.hpp>
+
+#include "Graphics\Window\window.h"
+#include "Graphics\Core\vertex_buffer_object.h"
+#include "Graphics\Core\vertex_buffer_array.h"
+#include "Graphics\Core\index_buffer_array.h"
+#include "Graphics\Shaders\shader.h"
+#include "Graphics\Sprites\sprite_renderer.h"
+#include "Graphics\Resources\resource_manager.h"
+#include "Graphics\Particles\particle_generator.h"
+#include "Graphics\Objects\object.h"
 
 #include <iostream>
 
-GLuint shaderProgram;
-GLuint shaderProgram_yellow;
+glm::vec3 light_pos = { 200.0f, 200.0f, 0.0f };
 
-GLuint fragmentShader;
-GLuint vertexShader;
-GLuint frag_shader_yellow;
-
-// Shaders
-const GLchar* vertexShaderSource = "#version 330 core\n"
-	"layout (location = 0) in vec3 position;\n"
-	"layout (location = 1) in vec3 colour; \n"
-	"out vec3 our_colour;\n"
-	"void main()\n"
-	"{\n"
-	"gl_Position = vec4(position, 1.0);\n"
-	"our_colour = colour;\n"
-	"}\0";
-
-const GLchar* fragmentShaderSource = "#version 330 core\n"
-	"in vec3 our_colour;\n"
-	"out vec4 colour;\n"
-	"void main()\n"
-	"{\n"
-	"colour = vec4(our_colour, 1.0f);\n"
-	"}\n\0";
-
-void tut_two_shaders()
-{
-
-	//Create a shader object in the same way a VBO is created.
-	vertexShader = glCreateShader(GL_VERTEX_SHADER);
-
-	//Attach the code and compile the shader.
-	glShaderSource(vertexShader, 1, &vertexShaderSource, nullptr);
-	glCompileShader(vertexShader);
-
-	//Check for errors during compilation.
-	GLint success;
-	GLchar infoLog[512];
-	glGetShaderiv(vertexShader, GL_COMPILE_STATUS, &success);
-
-	if (!success)
-	{
-		glGetShaderInfoLog(vertexShader, 512, nullptr, infoLog);
-		std::cout << "ERROR::SHADER::VERTEX::COMPILATION_FAILED\n" << infoLog << std::endl;
-	}
-
-	//Compile Fragment Shader
-	fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
-
-	glShaderSource(fragmentShader, 1, &fragmentShaderSource, nullptr);
-	glCompileShader(fragmentShader);
-
-	//Check for errors during compilation.
-	glGetShaderiv(fragmentShader, GL_COMPILE_STATUS, &success);
-
-	if (!success)
-	{
-		glGetShaderInfoLog(fragmentShader, 512, nullptr, infoLog);
-		std::cout << "ERROR::SHADER::FRAGMENT::COMPILATION_FAILED\n" << infoLog << std::endl;
-	}
-
-	//Attach the shaders to the program.
-	shaderProgram = glCreateProgram();
-	shaderProgram_yellow = glCreateProgram();
-
-	glAttachShader(shaderProgram, vertexShader);
-	glAttachShader(shaderProgram, fragmentShader);
-	glLinkProgram(shaderProgram);
-
-	//Check that linking worked correctly
-	glGetProgramiv(shaderProgram, GL_LINK_STATUS, &success);
-
-	if (!success)
-	{
-		glGetShaderInfoLog(shaderProgram, 512, nullptr, infoLog);
-		std::cout << "ERROR::SHADER_PROGRAM::LINKING_ERROR\n" << infoLog << std::endl;
-	}
-	//Delete the shaders as they are no longer needed anymore. Frees up memory perhaps?
-	glDeleteShader(vertexShader);
-	glDeleteShader(fragmentShader);
-}
 
 //Callback for handling key presses.
 void key_callback(GLFWwindow* window, int key, int scancode, int action, int mode)
@@ -107,58 +36,91 @@ int main()
 
 	glfwSetKeyCallback(window.window, key_callback);
 
-	//Tutorial Two
-	tut_two_shaders();
+	//Not sure why having the projection matrix is useful at the moment - Need to read up on this
+	glm::mat4 projection = glm::ortho(0.0f, 800.0f, 600.0f, 0.0f, -1.0f, 1.0f);
 
-	GLfloat vertices[] =
-	{
-		//Positions - x,y,z  - Colours r,g,b
-		 0.0f,  0.5f, 0.0f, 1.0f, 0.0f, 0.0f, //Top
-		 0.5f, -0.5f, 0.0f, 0.0f, 1.0f, 0.0f, //Bottom Right
-		-0.5f, -0.5f, 0.0f, 0.0f, 0.0f, 1.0f  //Bottom Left
-	};
+	Sprite_Renderer* renderer;
 
-	GLuint VAOs[1];
-	GLuint EBO;
+	Resource_Manager::load_shader("Graphics/Shaders/Sprite_Shaders/sprite.vert", "Graphics/Shaders/Sprite_Shaders/sprite.frag", nullptr, "Sprite_Shader");
+	//Configure Shaders
+	Resource_Manager::get_shader("Sprite_Shader").use().set_integer("image", 0);
+	Resource_Manager::get_shader("Sprite_Shader").set_vector3f("sprite_colour", glm::vec3{ 0.0f, 0.0f, 1.0f });
+	Resource_Manager::get_shader("Sprite_Shader").set_matrix4("projection", projection);
 
-	Vertex_Buffer VBO(vertices, sizeof(vertices), 3);
+	renderer = new Sprite_Renderer(Resource_Manager::get_shader("Sprite_Shader"));
 
-	glGenVertexArrays(1, VAOs);
-	glBindVertexArray(VAOs[0]);
+	Resource_Manager::load_texture("Graphics/Textures/tetrominoe.png", GL_TRUE, "face");
 
-	glBindBuffer(GL_ARRAY_BUFFER, VBO.get_index());
-	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(GLfloat), (GLvoid*)0);
-	glEnableVertexAttribArray(0);
+	GLfloat delta_time = 0.0f;
+	GLfloat last_frame = 0.0f;
 
-	//Colour attribute
-	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(GLfloat), (GLvoid*)(3 * sizeof(GLfloat)));
-	glEnableVertexAttribArray(1);
-	glBindVertexArray(0);
+	double mouse_x = 0.0;
+	double mouse_y = 0.0;
+
+	GLuint FBO;
+	glGenFramebuffers(1, &FBO);
+	glBindFramebuffer(GL_FRAMEBUFFER, FBO);
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+	//Framebuffer examples
+
+	GLuint texture;
+	glGenTextures(1, &texture);
+	glBindTexture(GL_TEXTURE_2D, texture);
+
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, 800, 600, 0, GL_RGB, GL_UNSIGNED_BYTE, nullptr);
+
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+	//Attach the texture to the framebuffer
+	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, texture, 0);
+
+
+	//End framebuffer examples
 
 	//Simple loop
 	while (!window.window_is_open())
 	{
+		GLfloat current_frame = static_cast<GLfloat>(glfwGetTime());
+		delta_time = current_frame - last_frame;
+		last_frame = current_frame;
 		glfwPollEvents();
+
+		glfwGetCursorPos(window.window, &mouse_x, &mouse_y);
 
 		window.clear();
 
-		GLint vertex_colour_location = glGetUniformLocation(shaderProgram, "our_colour");
+		Resource_Manager::get_shader("Sprite_Shader").set_vector3f("light_position", glm::vec3{ mouse_x, mouse_y, 1.0f });
 
-		glUseProgram(shaderProgram);
+		renderer->draw_sprite(Resource_Manager::get_texture("face"), glm::vec2(200, 200), glm::vec2(32.0f, 32.0f), 0.0f, glm::vec3(0.434f, 0.434f, 0.434f));
+		renderer->draw_sprite(Resource_Manager::get_texture("face"), glm::vec2(232, 200), glm::vec2(32.0f, 32.0f), 0.0f, glm::vec3(1.0f, 1.0f, 0.5f));
+		renderer->draw_sprite(Resource_Manager::get_texture("face"), glm::vec2(264, 200), glm::vec2(32.0f, 32.0f), 0.0f, glm::vec3(1.0f, 0.5f, 0.5f));
+		renderer->draw_sprite(Resource_Manager::get_texture("face"), glm::vec2(296, 200), glm::vec2(32.0f, 32.0f), 0.0f, glm::vec3(0.0f, 0.5f, 0.5f));
+		renderer->draw_sprite(Resource_Manager::get_texture("face"), glm::vec2(296, 200), glm::vec2(32.0f, 32.0f), 0.0f, glm::vec3(0.0f, 0.5f, 0.5f));
+		renderer->draw_sprite(Resource_Manager::get_texture("face"), glm::vec2(328, 200), glm::vec2(32.0f, 32.0f), 0.0f, glm::vec3(0.0f, 0.5f, 0.5f));
+		renderer->draw_sprite(Resource_Manager::get_texture("face"), glm::vec2(360, 200), glm::vec2(32.0f, 32.0f), 0.0f, glm::vec3(0.0f, 0.5f, 0.5f));
+		renderer->draw_sprite(Resource_Manager::get_texture("face"), glm::vec2(392, 200), glm::vec2(32.0f, 32.0f), 0.0f, glm::vec3(0.0f, 0.5f, 0.5f));
+		renderer->draw_sprite(Resource_Manager::get_texture("face"), glm::vec2(424, 200), glm::vec2(32.0f, 32.0f), 0.0f, glm::vec3(0.0f, 0.5f, 0.5f));
+		renderer->draw_sprite(Resource_Manager::get_texture("face"), glm::vec2(456, 200), glm::vec2(32.0f, 32.0f), 0.0f, glm::vec3(0.0f, 0.5f, 0.5f));
 
-		//Drawning
-		glBindVertexArray(VAOs[0]);
-		glDrawArrays(GL_TRIANGLES, 0, 3);
-		//glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
-		//Polygon mode aka wireframe mode
-		//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-		glBindVertexArray(0);
+		renderer->draw_sprite(Resource_Manager::get_texture("face"), glm::vec2(200, 232), glm::vec2(32.0f, 32.0f), 0.0f, glm::vec3(0.0f, 0.5f, 0.5f));
+		renderer->draw_sprite(Resource_Manager::get_texture("face"), glm::vec2(232, 232), glm::vec2(32.0f, 32.0f), 0.0f, glm::vec3(1.0f, 1.0f, 0.5f));
+		renderer->draw_sprite(Resource_Manager::get_texture("face"), glm::vec2(264, 232), glm::vec2(32.0f, 32.0f), 0.0f, glm::vec3(1.0f, 0.5f, 0.5f));
+		renderer->draw_sprite(Resource_Manager::get_texture("face"), glm::vec2(296, 232), glm::vec2(32.0f, 32.0f), 0.0f, glm::vec3(0.1f, 0.5f, 0.5f));
+		renderer->draw_sprite(Resource_Manager::get_texture("face"), glm::vec2(296, 232), glm::vec2(32.0f, 32.0f), 0.0f, glm::vec3(0.2f, 0.5f, 0.5f));
+		renderer->draw_sprite(Resource_Manager::get_texture("face"), glm::vec2(328, 232), glm::vec2(32.0f, 32.0f), 0.0f, glm::vec3(0.3f, 0.5f, 0.5f));
 
-
+		glm::vec3 blue = glm::vec3(0.0f, 0.0f, 0.474f);
+		renderer->draw_sprite(Resource_Manager::get_texture("face"), glm::vec2(360, 232), glm::vec2(32.0f, 32.0f), 0.0f, blue);
+		renderer->draw_sprite(Resource_Manager::get_texture("face"), glm::vec2(392, 232), glm::vec2(32.0f, 32.0f), 0.0f, blue);
+		renderer->draw_sprite(Resource_Manager::get_texture("face"), glm::vec2(424, 232), glm::vec2(32.0f, 32.0f), 0.0f, blue);
+		renderer->draw_sprite(Resource_Manager::get_texture("face"), glm::vec2(456, 232), glm::vec2(32.0f, 32.0f), 0.0f, blue);
 
 		window.flip();
 	}
+
+	glDeleteFramebuffers(1, &FBO);
 
 	//Cleanup
 	return 0;
