@@ -5,15 +5,15 @@
 #define GLEW_STATIC
 #include <GL/glew.h>
 
-class Vertex_Buffer
+class Vertex_Buffer_Object
 {
 
 public:
 
-	Vertex_Buffer(GLfloat* data, GLsizei count, GLuint component_count);
+	Vertex_Buffer_Object(GLfloat* data, GLsizei count, GLuint component_count);
 
-	inline void bind() const { glBindVertexArray(m_index); };
-	inline void unbind() const { glBindVertexArray(0); };
+	void bind() const;
+	void unbind() const;
 
 	inline GLuint get_index() const { return m_index; };
 	inline GLuint get_count() const { return m_count; };
