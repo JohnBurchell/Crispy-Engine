@@ -182,3 +182,4 @@ UpgradeLog*.htm
 
 # Microsoft Fakes
 FakesAssemblies/
+Networking/.vs/Networking/v15/Browse.VC.opendb
