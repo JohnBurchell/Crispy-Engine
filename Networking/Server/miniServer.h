@@ -29,6 +29,9 @@ namespace Networking
         MiniServer();
         ~MiniServer();
         
+        // Create the server
+        void setup_server();
+
         // Run this server!
         void run();
 
@@ -42,6 +45,15 @@ namespace Networking
         void close();
 
         Socket m_test_socket;
+
+        struct ServerInfo
+        {
+            addrinfo* m_result;
+            addrinfo* m_ptr;
+            addrinfo  m_hints;
+        };
+
+        ServerInfo m_server_info;
     };
 }// namespace Networking
 #endif // _MINISERVER_H_
