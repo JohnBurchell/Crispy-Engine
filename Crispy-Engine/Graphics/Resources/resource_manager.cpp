@@ -10,24 +10,26 @@
 std::map<std::string, Texture2D> Resource_Manager::textures;
 std::map<std::string, Shader>    Resource_Manager::shaders;
 
-Shader Resource_Manager::load_shader(const GLchar* v_shader_file, const GLchar* f_shader_file, const GLchar* g_shader_file, std::string name)
+using std::string;
+
+Shader Resource_Manager::load_shader(const GLchar* v_shader_file, const GLchar* f_shader_file, const GLchar* g_shader_file, string name)
 {
 	shaders[name] = load_shader_from_file(v_shader_file, f_shader_file, g_shader_file);
 	return shaders[name];
 }
 
-Shader Resource_Manager::get_shader(const std::string& name)
+Shader Resource_Manager::get_shader(const string& name)
 {
 	return shaders[name];
 }
 
-Texture2D Resource_Manager::load_texture(const GLchar* file, GLboolean alpha, std::string name)
+Texture2D Resource_Manager::load_texture(const GLchar* file, GLboolean alpha, const string& name)
 {
 	textures[name] = load_texture_from_file(file, alpha);
 	return textures[name];
 }
 
-Texture2D Resource_Manager::get_texture(std::string name)
+Texture2D Resource_Manager::get_texture(const string& name)
 {
 	return textures[name];
 }
@@ -35,9 +37,10 @@ Texture2D Resource_Manager::get_texture(std::string name)
 Shader Resource_Manager::load_shader_from_file(const GLchar* vertex_shader, const GLchar* fragment_shader, const GLchar* geometry_shader)
 {
 	//1. Retrieve the vertex & fragment sources from their respective filepaths
-	std::string vertex_source;
-	std::string fragment_source;
-	std::string geometry_source;
+	string vertex_source;
+	string fragment_source;
+	string geometry_source;
+
 	try
 	{
 		//Open Files

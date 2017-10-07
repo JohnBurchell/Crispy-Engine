@@ -32,16 +32,16 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
 
 int main()
 {
-	Window window;
+	Window window{};
 
 	glfwSetKeyCallback(window.window, key_callback);
 
 	//Not sure why having the projection matrix is useful at the moment - Need to read up on this
 	glm::mat4 projection = glm::ortho(0.0f, 800.0f, 600.0f, 0.0f, -1.0f, 1.0f);
 
-	Sprite_Renderer* renderer;
+	Sprite_Renderer* renderer = nullptr;
 
-	Resource_Manager::load_shader("Graphics/Shaders/Sprite_Shaders/sprite.vert", "Graphics/Shaders/Sprite_Shaders/sprite.frag", nullptr, "Sprite_Shader");
+	Resource_Manager::load_shader("../Graphics/Shaders/Sprite_Shaders/sprite.vert", "../Graphics/Shaders/Sprite_Shaders/sprite.frag", nullptr, "Sprite_Shader");
 	//Configure Shaders
 	Resource_Manager::get_shader("Sprite_Shader").use().set_integer("image", 0);
 	Resource_Manager::get_shader("Sprite_Shader").set_vector3f("sprite_colour", glm::vec3{ 0.0f, 0.0f, 1.0f });
@@ -49,7 +49,7 @@ int main()
 
 	renderer = new Sprite_Renderer(Resource_Manager::get_shader("Sprite_Shader"));
 
-	Resource_Manager::load_texture("Graphics/Textures/tetrominoe.png", GL_TRUE, "face");
+	Resource_Manager::load_texture("../Graphics/Textures/tetrominoe.png", GL_TRUE, "face");
 
 	GLfloat delta_time = 0.0f;
 	GLfloat last_frame = 0.0f;

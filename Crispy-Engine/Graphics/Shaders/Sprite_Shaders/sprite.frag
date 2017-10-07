@@ -9,6 +9,6 @@ uniform vec3 light_position;
 
 void main()
 {
-	float intensity = 1.0 / length(vec3(frag_pos.xy, 1.0f) - light_position) * 50;
-	colour = vec4(sprite_colour, 1.0) * texture(image, tex_coords);
+	float intensity = 100.0 / length(vec3(frag_pos.xy, 1.0f) - light_position);
+	colour = vec4(sprite_colour, 1.0) * (texture(image, tex_coords) * intensity);
 }

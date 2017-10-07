@@ -22,9 +22,9 @@ public:
 	//Retrieve a stored shader
 	static Shader get_shader(const std::string& name);
 	//Loads (and generates) a texture from a file
-	static Texture2D load_texture(const GLchar* file, GLboolean alpha, std::string name);
+	static Texture2D load_texture(const GLchar* file, GLboolean alpha, const std::string& name);
 	//Retrieve a stored texture
-	static Texture2D get_texture(std::string name);
+	static Texture2D get_texture(const std::string& name);
 	//Properly de-allocate all loaded resources
 	static void clear();
 
