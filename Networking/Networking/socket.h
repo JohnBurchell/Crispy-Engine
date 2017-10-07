@@ -22,7 +22,7 @@ namespace Networking
             void create(addrinfo * result, const addrinfo * ptr, const addrinfo & hints);
             void close();
 
-            //const SOCKET& internal_socket() const { return m_internal_socket; }
+            const SOCKET& internal_socket() const { return m_internal_socket; }
 
         private:
 
