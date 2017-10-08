@@ -111,6 +111,16 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ProjectReference Include="..\Networking\Networking.vcxproj">
+      <Project>{d9457c26-7784-48a5-9c73-6459c8edccc0}</Project>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="main.cpp" />
+    <ClCompile Include="miniClient.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="miniClient.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
