@@ -35,11 +35,15 @@ namespace Networking
     void MiniServer::create_socket()
     {
         // Add to list of sockets later?
+        printf("Creating Socket..");
         m_test_socket.create();
+        printf(".Done\n");
     }
 
     void MiniServer::bind_socket()
     {
+        printf("Binding Socket..");
+
         // Socket binding
         SOCKET sock = m_test_socket.internal_socket();
         int iResult = bind(sock,
@@ -53,16 +57,16 @@ namespace Networking
             return;
         }
 
+        printf(".Done\n");
+
         // no longer need the addrinfo in result - free this up.
         freeaddrinfo(m_server_info.m_result);
     }
 
     void MiniServer::accept_connection()
     {
-        Socket new_socket;
-        new_socket.create(m_server_info.m_result, m_server_info.m_ptr, m_server_info.m_hints);
-
-        SOCKET client_socket = new_socket.internal_socket();
+        printf("Accepting..");
+        SOCKET client_socket = INVALID_SOCKET;
 
         // attempt to accept a client socket
         client_socket = accept(m_test_socket.internal_socket(), nullptr, nullptr);
@@ -72,10 +76,12 @@ namespace Networking
             m_test_socket.close();
             return;
         }
+        printf("..Done\n");
     }
 
     void MiniServer::listen_on_socket()
     {
+        printf("Listening on socket..");
         // Attempt to listen for a connection
         // SOMAXCONN == allow the max number of pending connections
         if (listen(m_test_socket.internal_socket(), SOMAXCONN) == SOCKET_ERROR)
@@ -85,6 +91,7 @@ namespace Networking
             m_test_socket.close();
             return;
         }
+        printf("..Done\n");
     }
 
     void MiniServer::run()
